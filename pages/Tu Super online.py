@@ -7,6 +7,41 @@ st.set_page_config(
     layout="centered"
 )
 
+# Sidebar styling
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50;
+    }
+    [data-testid="stSidebar"] .sidebar-content {
+        background-color: #2C3E50;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        padding: 12px 20px !important;
+        margin: 8px 0 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+        display: block !important;
+        text-decoration: none !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        transform: translateX(5px) !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        font-weight: 700 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # Aplicar estilo personalizado
 st.markdown("""
     <style>
