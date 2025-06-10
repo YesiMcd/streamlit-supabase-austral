@@ -2,7 +2,7 @@ import streamlit as st
 import re
 
 # Configuración de la página
-st.set_page_config(page_title="pag1", page_icon="🛒", layout="centered")
+st.set_page_config(page_title="Registro", page_icon="🛒", layout="centered")
 
 # --- Estilo personalizado ---
 st.markdown("""
