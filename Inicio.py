@@ -141,17 +141,17 @@ st.markdown("""
     }
 
     .register-text {
-        color: #00ecc2 !important;
+        color: #1A4B8C !important;
         font-size: 24px !important;
         font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
         margin-bottom: 0 !important;
-        text-shadow: 1px 1px 2px rgba(0, 236, 194, 0.2) !important;
+        text-shadow: 1px 1px 2px rgba(26, 75, 140, 0.2) !important;
         text-align: right !important;
     }
 
     .custom-button {
-        background-color: #00ecc2 !important;
+        background-color: #1A4B8C !important;
         color: white !important;
         padding: 12px 25px !important;
         border-radius: 25px !important;
@@ -161,15 +161,15 @@ st.markdown("""
         font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
         transition: all 0.3s ease !important;
         display: inline-block !important;
-        box-shadow: 0 4px 15px rgba(0, 236, 194, 0.3) !important;
+        box-shadow: 0 4px 15px rgba(26, 75, 140, 0.3) !important;
         margin: 0 !important;
         align-self: flex-end !important;
     }
 
     .custom-button:hover {
-        background-color: #00d4b0 !important;
+        background-color: #153a6e !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(0, 236, 194, 0.4) !important;
+        box-shadow: 0 6px 20px rgba(26, 75, 140, 0.4) !important;
     }
 
     .content-overlay {
