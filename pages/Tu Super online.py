@@ -45,12 +45,55 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+    /* Forzar el color de fondo en múltiples elementos de Streamlit */
+    .stApp {
+        background-color: #D4DFF0 !important;
+    }
+    
     .main {
-        background: linear-gradient(135deg, #E8F0FE, #F8FAFF);
+        background: #D4DFF0 !important;
         min-height: 100vh;
         padding: 2rem;
         font-family: 'Inter', sans-serif !important;
         text-align: center;
+    }
+    
+    .block-container {
+        background: #D4DFF0 !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: #D4DFF0 !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+    }
+
+    /* Centrar título y subtítulo */
+    .title-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+
+    .title-container h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2B3674;
+        margin: 0 0 0.5rem 0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .title-container .subtitle {
+        font-size: 1.1rem;
+        color: #707EAE;
+        margin: 0 0 1rem 0;
+        font-family: 'Inter', sans-serif;
     }
 
     h1 {
@@ -103,7 +146,7 @@ st.markdown("""
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, #E8F0FE 0%, #F8FAFF 100%);
+        background: #D4DFF0;
         z-index: -1;
     }
 
@@ -146,7 +189,7 @@ st.markdown("""
         display: block;
     }
 
-    .column-container {
+   .column-container {
         padding: 1.5rem;
         border-radius: 15px;
         /* Fondo más opaco y con mejor contraste */
@@ -156,7 +199,7 @@ st.markdown("""
         transition: all 0.3s ease;
         /* Sombra más pronunciada para resaltar del fondo */
         box-shadow: 0 10px 30px rgba(43, 54, 116, 0.15),
-                    0 4px 12px rgba(43, 54, 116, 0.1),
+                     0 4px 12px rgba(43, 54, 116, 0.1),
                     0 2px 6px rgba(0, 0, 0, 0.05);
         /* Borde sutil para mejor definición */
         border: 1px solid rgba(255, 255, 255, 0.8);
@@ -181,9 +224,13 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Contenido principal
-st.markdown('<h1> ¡Tu Super Online!</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Bienvenido a tu supermercado digital</p>', unsafe_allow_html=True)
+# Contenido principal - Título y subtítulo centrados
+st.markdown("""
+    <div class="title-container">
+        <h1>¡Tu Super Online!</h1>
+        <p class="subtitle">Bienvenido a tu supermercado digital</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # Crear dos columnas para los botones
 col1, col2 = st.columns(2)
