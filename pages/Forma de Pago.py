@@ -7,31 +7,16 @@ st.set_page_config(
     layout="centered"
 )
 
-# Sidebar styling
+# Estilo de fondo general + encabezados, etc.
 st.markdown("""
     <style>
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Estilo personalizado principal
-st.markdown("""
-    <style>
-    html, body {
-        background: linear-gradient(135deg, #E8F0FE, #F8FAFF) !important;
+    html, body, .stApp, #root, header, main, section {
+        background-color: #D4DFF0 !important;
         font-family: 'Inter', sans-serif !important;
         color: #2B3674 !important;
         margin: 0 !important;
         padding: 0 !important;
+        height: 100%;
     }
 
     .block-container {
@@ -65,9 +50,26 @@ st.markdown("""
         box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
         transform: translateY(-2px) !important;
     }
+
     div.stButton {
         text-align: center !important;
         padding: 10px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Sidebar styling
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     </style>
 """, unsafe_allow_html=True)

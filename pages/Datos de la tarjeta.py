@@ -7,55 +7,62 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilo personalizado
-st.markdown("""<style>
-html, body {
-    background: linear-gradient(135deg, #E8F0FE, #F8FAFF) !important;
-    font-family: 'Inter', sans-serif !important;
-    color: #2B3674;
-}
-.block-container {
-    max-width: 700px !important;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-    margin: auto;
-}
-input[type="text"], input[type="password"] {
-    border-radius: 10px !important;
-    border: 1.5px solid #2B3674 !important;
-    padding: 10px 14px !important;
-    font-size: 16px !important;
-}
-.stTextInput > div > div > input {
-    width: 100% !important;
-}
-.stButton > button {
-    background-color: #2B3674 !important;
-    color: white !important;
-    padding: 14px 30px !important;
-    border-radius: 10px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    margin-top: 1rem !important;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    width: 100%;
-}
-.stButton > button:hover {
-    background-color: #1A2156 !important;
-    transform: translateY(-1px);
-}
-[data-testid="stSidebar"] {
-    background-color: #2C3E50 !important;
-}
-[data-testid="stSidebar"] * {
-    color: white !important;
-    font-family: 'Poppins', sans-serif !important;
-}
-h1, h2, h3, h4 {
-    color: #2B3674 !important;
-}
-</style>""", unsafe_allow_html=True)
+# Estilo personalizado reforzado
+st.markdown("""
+    <style>
+    html, body, .stApp, #root, header, main, section {
+        background-color: #D4DFF0 !important;
+        font-family: 'Inter', sans-serif !important;
+        color: #2B3674 !important;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+    .block-container {
+        background-color: #D4DFF0 !important;
+        max-width: 700px !important;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        margin: auto;
+    }
+    input[type="text"], input[type="password"] {
+        border-radius: 10px !important;
+        border: 1.5px solid #2B3674 !important;
+        padding: 10px 14px !important;
+        font-size: 16px !important;
+        background-color: white !important;
+    }
+    .stTextInput > div > div > input {
+        width: 100% !important;
+    }
+    .stButton > button {
+        background-color: #2B3674 !important;
+        color: white !important;
+        padding: 14px 30px !important;
+        border-radius: 10px !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-top: 1rem !important;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        width: 100%;
+    }
+    .stButton > button:hover {
+        background-color: #1A2156 !important;
+        transform: translateY(-1px);
+    }
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    h1, h2, h3, h4 {
+        color: #2B3674 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # Título
 st.title("💳 Datos de la Tarjeta")
@@ -84,8 +91,8 @@ with st.form("formulario_tarjeta"):
         else:
             st.success("¡Pago procesado con éxito!")
             st.session_state["pago_completado"] = True
-            st.switch_page("pages/Pedido exitoso.py")  # Ir a Pedido exitoso
+            st.switch_page("pages/Pedido exitoso.py")
 
-# Botón volver a Forma de pago
+# Botón volver
 if st.button("← Volver"):
-    st.switch_page("pages/Forma de pago.py")  # Ir a Forma de pago
+    st.switch_page("pages/Forma de pago.py")

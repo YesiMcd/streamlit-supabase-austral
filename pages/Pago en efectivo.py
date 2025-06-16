@@ -7,8 +7,19 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilos
+# Estilos globales actualizados
 st.markdown("""<style>
+/* Fondo de toda la app */
+html, body, .stApp, #root, header, main, section {
+    background-color: #D4DFF0 !important;
+    font-family: 'Inter', sans-serif !important;
+    color: #2B3674 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+/* Sidebar */
 [data-testid="stSidebar"] {
     background-color: #2C3E50 !important;
 }
@@ -16,20 +27,21 @@ st.markdown("""<style>
     color: white !important;
     font-family: 'Poppins', sans-serif !important;
 }
-html, body {
-    background: linear-gradient(135deg, #E8F0FE, #F8FAFF) !important;
-    font-family: 'Inter', sans-serif !important;
-    color: #2B3674 !important;
-}
+
+/* Contenedor principal */
 .block-container {
     max-width: 700px !important;
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
     margin: auto !important;
 }
+
+/* Títulos */
 h1, h2, h3, h4 {
     color: #2B3674 !important;
 }
+
+/* Botones */
 .stButton > button {
     background-color: #2B3674 !important;
     color: white !important;
@@ -63,6 +75,7 @@ if st.button("💱 Necesito cambio", use_container_width=True):
     st.session_state["tipo_efectivo"] = "cambio"
     st.switch_page("pages/Pedido exitoso.py")
 
+# Espacio
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # Botón volver
