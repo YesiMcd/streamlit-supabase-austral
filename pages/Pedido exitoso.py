@@ -47,8 +47,52 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     
     .main {
-        background: linear-gradient(135deg, #E8F0FE, #F8FAFF);
+        background: #D4DFF0 !important;
         min-height: 100vh;
+    }
+    
+    .stApp {
+        background: #D4DFF0 !important;
+    }
+    
+    .block-container {
+        background: #D4DFF0 !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background: #D4DFF0 !important;
+    }
+    
+    [data-testid="stMain"] {
+        background: #D4DFF0 !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background: #D4DFF0 !important;
+    }
+    
+    [data-testid="stToolbar"] {
+        background: #D4DFF0 !important;
+    }
+    
+    .main > div {
+        background: #D4DFF0 !important;
+    }
+    
+    .element-container {
+        background: #D4DFF0 !important;
+    }
+    
+    .stMarkdown {
+        background: #D4DFF0 !important;
+    }
+    
+    body {
+        background: #D4DFF0 !important;
+    }
+    
+    html {
+        background: #D4DFF0 !important;
     }
     
     .success-container {
@@ -145,7 +189,7 @@ st.markdown("""
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, #E8F0FE 0%, #F8FAFF 100%);
+        background: #D4DFF0;
         z-index: -1;
     }
 
