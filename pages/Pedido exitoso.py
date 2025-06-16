@@ -41,8 +41,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
-
 # Estilo personalizado
 st.markdown("""
     <style>
@@ -209,4 +207,4 @@ st.markdown("""
 
 # Botón para volver al inicio
 if st.button("Volver al Inicio", use_container_width=True):
-    st.session_state["page"] = "inicio"
+    st.switch_page("Inicio.py")  # O usa "pages/Inicio.py" si está dentro de esa carpeta

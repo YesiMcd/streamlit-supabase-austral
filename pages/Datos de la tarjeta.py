@@ -7,141 +7,85 @@ st.set_page_config(
     layout="centered"
 )
 
-# Sidebar styling
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-
-
 # Estilo personalizado
-st.markdown("""
-    <style>
-    .stButton > button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        margin: 10px 0;
-    }
-    .stButton > button:hover {
-        background-color: #45a049;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .tipo-tarjeta {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
-    }
-    .pagar-button > button {
-        background-color: #2196F3;
-        font-size: 18px;
-        padding: 20px 40px;
-    }
-    .pagar-button > button:hover {
-        background-color: #1976D2;
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.markdown("""<style>
+html, body {
+    background: linear-gradient(135deg, #E8F0FE, #F8FAFF) !important;
+    font-family: 'Inter', sans-serif !important;
+    color: #2B3674;
+}
+.block-container {
+    max-width: 700px !important;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    margin: auto;
+}
+input[type="text"], input[type="password"] {
+    border-radius: 10px !important;
+    border: 1.5px solid #2B3674 !important;
+    padding: 10px 14px !important;
+    font-size: 16px !important;
+}
+.stTextInput > div > div > input {
+    width: 100% !important;
+}
+.stButton > button {
+    background-color: #2B3674 !important;
+    color: white !important;
+    padding: 14px 30px !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin-top: 1rem !important;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    width: 100%;
+}
+.stButton > button:hover {
+    background-color: #1A2156 !important;
+    transform: translateY(-1px);
+}
+[data-testid="stSidebar"] {
+    background-color: #2C3E50 !important;
+}
+[data-testid="stSidebar"] * {
+    color: white !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+h1, h2, h3, h4 {
+    color: #2B3674 !important;
+}
+</style>""", unsafe_allow_html=True)
 
-# Título de la página
+# Título
 st.title("💳 Datos de la Tarjeta")
 
-# Crear un formulario para los datos
+# Formulario
 with st.form("formulario_tarjeta"):
-    # Número de tarjeta
-    numero_tarjeta = st.text_input(
-        "Número de la Tarjeta",
-        max_chars=16,
-        help="Ingrese los 16 dígitos de su tarjeta"
-    )
-
-    # Fila para fecha y código
+    numero_tarjeta = st.text_input("Número de la Tarjeta", max_chars=16)
     col1, col2 = st.columns(2)
-    
+
     with col1:
-        fecha_vencimiento = st.text_input(
-            "Fecha de Vencimiento",
-            placeholder="MM/AA",
-            max_chars=5,
-            help="Formato: MM/AA"
-        )
-    
+        fecha_vencimiento = st.text_input("Fecha de Vencimiento", placeholder="MM/AA", max_chars=5)
+
     with col2:
-        codigo_seguridad = st.text_input(
-            "Código de Seguridad",
-            type="password",
-            max_chars=4,
-            help="3 o 4 dígitos en el reverso de su tarjeta"
-        )
+        codigo_seguridad = st.text_input("Código de Seguridad", type="password", max_chars=4)
 
-    # Nombre en la tarjeta
-    nombre_tarjeta = st.text_input(
-        "Nombre en la Tarjeta",
-        help="Como aparece en la tarjeta"
-    )
+    nombre_tarjeta = st.text_input("Nombre en la Tarjeta")
 
-    # Tipo de tarjeta (Crédito/Débito)
     st.markdown("### Tipo de Tarjeta")
-    tipo_tarjeta = st.radio(
-        "Seleccione el tipo de tarjeta",
-        options=["Débito", "Crédito"],
-        horizontal=True,
-        label_visibility="collapsed"
-    )
+    tipo_tarjeta = st.radio("Seleccione el tipo de tarjeta", options=["Débito", "Crédito"], horizontal=True, label_visibility="collapsed")
 
-    # Espacio para separar
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Botón de pagar
-    submitted = st.form_submit_button(
-        "PAGAR",
-        use_container_width=True,
-        type="primary"
-    )
+    submitted = st.form_submit_button("PAGAR")
 
     if submitted:
-        # Validaciones básicas
         if not numero_tarjeta or not fecha_vencimiento or not codigo_seguridad or not nombre_tarjeta:
             st.error("Por favor, complete todos los campos")
         else:
-            # Aquí puedes agregar más validaciones específicas
             st.success("¡Pago procesado con éxito!")
             st.session_state["pago_completado"] = True
+            st.switch_page("pages/Pedido exitoso.py")  # Ir a Pedido exitoso
 
-# Botón para volver atrás
-if st.button("← Volver", use_container_width=True):
-    st.session_state["page"] = "anterior"
+# Botón volver a Forma de pago
+if st.button("← Volver"):
+    st.switch_page("pages/Forma de pago.py")  # Ir a Forma de pago

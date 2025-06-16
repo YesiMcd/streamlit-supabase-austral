@@ -28,7 +28,7 @@ usuario_email = st.session_state["email"]
 
 @st.cache_data
 def obtener_codigo_postal(email):
-    result = supabase.table("cliente").select("código postal").eq("email", email).execute()
+    result = supabase.table("Cliente").select("código postal").eq("email", email).execute()
     if result.data and len(result.data) > 0:
         return result.data[0]["código postal"]
     return None

@@ -11,60 +11,63 @@ st.set_page_config(
 st.markdown("""
     <style>
     [data-testid="stSidebar"] {
-        background-color: #2C3E50;
+        background-color: #2C3E50 !important;
     }
     [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50;
+        background-color: #2C3E50 !important;
     }
     [data-testid="stSidebar"] * {
         color: white !important;
         font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-
-
-# Estilo personalizado
+# Estilo personalizado principal
 st.markdown("""
     <style>
+    html, body {
+        background: linear-gradient(135deg, #E8F0FE, #F8FAFF) !important;
+        font-family: 'Inter', sans-serif !important;
+        color: #2B3674 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .block-container {
+        max-width: 700px !important;
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        margin: auto !important;
+    }
+
+    h1, h2, h3, h4 {
+        color: #2B3674 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
     .stButton > button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 20px 30px;
-        border-radius: 10px;
-        border: none;
-        font-size: 18px;
-        transition: all 0.3s ease;
-        margin: 10px 0;
-        width: 100%;
+        background-color: #2B3674 !important;
+        color: white !important;
+        padding: 14px 30px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        width: 100% !important;
+        margin: 10px 0 !important;
     }
     .stButton > button:hover {
-        background-color: #45a049;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        transform: translateY(-2px);
+        background-color: #1A2156 !important;
+        box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
+        transform: translateY(-2px) !important;
     }
     div.stButton {
-        text-align: center;
-        padding: 10px;
+        text-align: center !important;
+        padding: 10px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -74,32 +77,24 @@ st.title("💰 Forma de Pago")
 
 # Mensaje informativo
 st.markdown("### Selecciona tu método de pago preferido")
-
-# Espacio para separar
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Contenedor para los botones
-container = st.container()
+# Botón de Efectivo
+if st.button("💵 Efectivo", use_container_width=True):
+    st.session_state["metodo_pago"] = "efectivo"
+    st.switch_page("pages/Pago en efectivo.py")
 
-with container:
-    # Botón de Efectivo
-    if st.button("💵 Efectivo", use_container_width=True):
-        st.session_state["metodo_pago"] = "efectivo"
-        st.success("Has seleccionado pago en efectivo")
-        # Aquí puedes agregar la lógica adicional para el pago en efectivo
+# Espacio entre botones
+st.markdown("<br>", unsafe_allow_html=True)
 
-    # Espacio entre botones
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Botón de Tarjeta
-    if st.button("💳 Tarjeta", use_container_width=True):
-        st.session_state["metodo_pago"] = "tarjeta"
-        st.success("Has seleccionado pago con tarjeta")
-        # Aquí puedes agregar la lógica adicional para el pago con tarjeta
+# Botón de Tarjeta
+if st.button("💳 Tarjeta", use_container_width=True):
+    st.session_state["metodo_pago"] = "tarjeta"
+    st.switch_page("pages/Datos de la tarjeta.py")
 
-# Espacio para separar
-st.markdown("<br>" * 2, unsafe_allow_html=True)
+# Espacio
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Botón para volver atrás
+# Botón Volver
 if st.button("← Volver", use_container_width=True):
-    st.session_state["page"] = "anterior"
+    st.switch_page("pages/Buscador de productos.py")
