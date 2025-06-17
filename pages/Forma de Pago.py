@@ -1,29 +1,54 @@
 import streamlit as st
+from PIL import Image
+import base64
+from io import BytesIO
 
-# Configuración de la página
+# --- Configuración de la página ---
 st.set_page_config(
     page_title="Forma de Pago",
     page_icon="💳",
     layout="centered"
 )
 
-# Estilo de fondo general + encabezados, etc.
+# --- Función para convertir imagen a base64 ---
+def image_to_base64(img):
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG")
+    return base64.b64encode(buffer.getvalue()).decode()
+
+# --- Cargar imagen y convertir a base64 ---
+logo_path = "C:/Users/anelm/OneDrive/Escritorio/Superlisto/streamlit-supabase-austral/fondo del titulo.jpg"
+logo_img = Image.open(logo_path)
+logo_b64 = image_to_base64(logo_img)
+
+# --- Estilos globales ---
 st.markdown("""
     <style>
-    html, body, .stApp, #root, header, main, section {
+    html, body, .stApp, [data-testid="stAppViewContainer"], .main {
         background-color: #D4DFF0 !important;
         font-family: 'Inter', sans-serif !important;
         color: #2B3674 !important;
         margin: 0 !important;
         padding: 0 !important;
-        height: 100%;
     }
 
     .block-container {
         max-width: 700px !important;
-        padding-top: 2rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 2rem !important;
         margin: auto !important;
+        background-color: #D4DFF0 !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
     }
 
     h1, h2, h3, h4 {
@@ -45,6 +70,7 @@ st.markdown("""
         width: 100% !important;
         margin: 10px 0 !important;
     }
+
     .stButton > button:hover {
         background-color: #1A2156 !important;
         box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
@@ -55,48 +81,82 @@ st.markdown("""
         text-align: center !important;
         padding: 10px !important;
     }
+
+    /* Separador decorativo */
+    .linea-separadora {
+        border-top: 1.5px solid #A8B8D8;
+        margin: 30px auto 20px auto;
+        width: 80%;
+    }
+
+    /* Ocultar/cambiar color del header y toolbar */
+    header[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+        height: 0px !important;
+    }
+    
+    .stToolbar {
+        background-color: #D4DFF0 !important;
+    }
+    
+    [data-testid="stToolbar"] {
+        background-color: #D4DFF0 !important;
+    }
+    
+    /* Remover cualquier cuadro blanco en la parte superior */
+    .stApp > div:first-child,
+    .stApp > header,
+    .stApp > div[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+    }
+    
+    /* Si hay un elemento con clase específica que cause el cuadro blanco */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        background-color: #D4DFF0 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar styling
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    }
-    </style>
+# --- Banner con título centrado ---
+st.markdown(f"""
+    <div style="
+        background-image: url('data:image/jpeg;base64,{logo_b64}');
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 100px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 20px;
+    ">
+        <h1 style='
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+        '>💰 Forma de Pago</h1>
+    </div>
 """, unsafe_allow_html=True)
 
-# Título de la página
-st.title("💰 Forma de Pago")
-
-# Mensaje informativo
+# --- Frase debajo del título ---
 st.markdown("### Selecciona tu método de pago preferido")
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Botón de Efectivo
+# --- Botones ---
 if st.button("💵 Efectivo", use_container_width=True):
     st.session_state["metodo_pago"] = "efectivo"
     st.switch_page("pages/Pago en efectivo.py")
 
-# Espacio entre botones
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Botón de Tarjeta
 if st.button("💳 Tarjeta", use_container_width=True):
     st.session_state["metodo_pago"] = "tarjeta"
     st.switch_page("pages/Datos de la tarjeta.py")
 
-# Espacio
-st.markdown("<br><br>", unsafe_allow_html=True)
+# --- Separador decorativo ---
+st.markdown('<div class="linea-separadora"></div>', unsafe_allow_html=True)
 
-# Botón Volver
+# --- Botón Volver ---
 if st.button("← Volver", use_container_width=True):
     st.switch_page("pages/Buscador de productos.py")
