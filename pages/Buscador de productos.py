@@ -6,6 +6,7 @@ import time
 from PIL import Image
 import base64
 from io import BytesIO
+from utils.sidebar_config import configure_sidebar
 
 # --- Función para convertir imagen a base64 ---
 def image_to_base64(img):
@@ -16,9 +17,13 @@ def image_to_base64(img):
 # Configuración de página
 st.set_page_config(
     page_title="Buscador de Productos",
-    page_icon="🛒",
-    layout="wide"
+    page_icon="��",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Configurar sidebar
+configure_sidebar()
 
 # Inicializar cliente de Supabase
 supabase = get_supabase_client()
@@ -176,7 +181,7 @@ st.markdown("""
         color: #666 !important;
     }
 
-    /* Estilos para las tarjetas de productos */
+    /* Estilos para las tarjetas de productos */s
     .product-card {
         background-color: white;
         padding: 15px;
@@ -306,7 +311,8 @@ def calcular_mejor_opcion(carrito, codigo_postal):
             )
             
             if precio is not None:
-                total += precio
+                # Multiplicar el precio por la cantidad de unidades
+                total += precio * producto['cantidad']
             else:
                 productos_disponibles = False
                 break
@@ -384,6 +390,10 @@ else:
         </div>
     """, unsafe_allow_html=True)
 
+# Botón de volver después del título
+if st.button("← Volver", key="back_button", help="Volver a la página anterior"):
+    st.switch_page("pages/Tu Super online.py")
+
 st.markdown("**Encuentra el supermercado con menor precio total en tu zona**")
 
 # Obtener código postal del usuario
@@ -401,10 +411,13 @@ if not productos_disponibles:
     st.stop()
 
 # Layout en columnas
-col1, col2 = st.columns([3, 2])
+col1, col2 = st.columns([2, 1])
 
 with col1:
     st.markdown('<h3 style="text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">📋 Seleccionar Productos</h3>', unsafe_allow_html=True)
+    
+    # Mensaje informativo sobre el orden de selección
+    st.info("💡 **Recuerda:** Primero selecciona la cantidad de unidades y luego marca el checkbox para agregar al carrito.")
     
     # Tipo de búsqueda
     tipo_busqueda = st.radio("Buscar por:", ["Producto", "Marca"], horizontal=True)
@@ -438,7 +451,7 @@ with col1:
     
     st.caption(f"Mostrando {len(productos_filtrados)} productos")
     
-    # Mostrar productos con checkboxes
+    # Mostrar productos con checkboxes y selector de cantidad
     for i, producto in enumerate(productos_filtrados):
         key = f"check_{producto['nombre']}_{producto['marca']}_{i}"
         
@@ -453,19 +466,40 @@ with col1:
             nombre_display = nombre_display.replace(busqueda, f"**{busqueda}**")
             marca_display = marca_display.replace(busqueda, f"**{busqueda}**")
         
-        if st.checkbox(
-            f"**{nombre_display}** - {marca_display}", 
-            value=producto_en_carrito,
-            key=key
-        ):
-            if not producto_en_carrito:
-                st.session_state.carrito.append(producto)
-        else:
-            if producto_en_carrito:
-                st.session_state.carrito = [
-                    p for p in st.session_state.carrito 
-                    if not (p['nombre'] == producto['nombre'] and p['marca'] == producto['marca'])
-                ]
+        # Crear un contenedor para cada producto
+        with st.container():
+            col_prod, col_cant = st.columns([4, 1])
+            
+            with col_prod:
+                if st.checkbox(
+                    f"**{nombre_display}** - {marca_display}", 
+                    value=producto_en_carrito,
+                    key=key
+                ):
+                    if not producto_en_carrito:
+                        cantidad = st.session_state.get(f"cantidad_{i}", 1)
+                        st.session_state.carrito.append({
+                            'nombre': producto['nombre'],
+                            'marca': producto['marca'],
+                            'cantidad': cantidad
+                        })
+                else:
+                    if producto_en_carrito:
+                        st.session_state.carrito = [
+                            p for p in st.session_state.carrito 
+                            if not (p['nombre'] == producto['nombre'] and p['marca'] == producto['marca'])
+                        ]
+            
+            with col_cant:
+                # Selector de cantidad más compacto
+                st.number_input(
+                    "Cant.",
+                    min_value=1,
+                    max_value=10,
+                    value=1,
+                    key=f"cantidad_{i}",
+                    label_visibility="collapsed"
+                )
 
 with col2:
     st.markdown('<h3 style="text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">🛒 Mi Carrito</h3>', unsafe_allow_html=True)
@@ -474,14 +508,18 @@ with col2:
         st.info("Tu carrito está vacío\n\nSelecciona productos de la izquierda")
     else:
         for producto in st.session_state.carrito:
+            # Obtener la cantidad actual del producto
+            cantidad = producto.get('cantidad', 1)
             st.markdown(f"""
             <div class="cart-item">
                 <strong>{producto['nombre']}</strong><br>
-                <small style="color: #666;">{producto['marca']}</small>
+                <small style="color: #666;">{producto['marca']}</small><br>
+                <small style="color: #666;">Cantidad: {cantidad}</small>
             </div>
             """, unsafe_allow_html=True)
         
-        st.markdown(f"**Total de productos:** {len(st.session_state.carrito)}")
+        total_productos = sum(p['cantidad'] for p in st.session_state.carrito)
+        st.markdown(f"**Total de productos:** {total_productos}")
         
         if st.button("💰 Calcular Mejor Precio", type="primary", use_container_width=True):
             with st.spinner("Calculando precios en todos los supermercados..."):

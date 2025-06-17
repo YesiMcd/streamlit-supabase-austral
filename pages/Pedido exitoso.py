@@ -1,4 +1,7 @@
 import streamlit as st
+from conexion import get_supabase_client
+from datetime import datetime
+import time
 
 # Configuración de la página
 st.set_page_config(
@@ -6,6 +9,131 @@ st.set_page_config(
     page_icon="🛍️",
     layout="centered"
 )
+
+# Inicializar cliente de Supabase
+supabase = get_supabase_client()
+
+def obtener_datos_producto(nombre, marca):
+    try:
+        response = supabase.table("Productos").select("id_productos, precio").eq("nombre_producto", nombre).eq("marca", marca).execute()
+        
+        if response.data and len(response.data) > 0:
+            return response.data[0]
+        return None
+    except Exception as e:
+        st.error(f"Error al obtener datos del producto: {str(e)}")
+        return None
+
+def obtener_siguiente_id_carrito():
+    try:
+        response = supabase.table("Carrito").select("id_carrito").order("id_carrito", desc=True).limit(1).execute()
+        if response.data and len(response.data) > 0:
+            return int(response.data[0]['id_carrito']) + 1
+        return 1
+    except Exception as e:
+        st.error(f"Error al obtener el siguiente ID de carrito: {str(e)}")
+        return None
+
+def guardar_carrito():
+    try:
+        # Obtener el email del usuario de la sesión
+        email = st.session_state.get('user_email')
+        if not email:
+            st.error("No se encontró la sesión del usuario")
+            return False
+
+        # Obtener el ID del cliente
+        response = supabase.table("Cliente").select("id_cliente").eq("email", email).execute()
+        if not response.data:
+            st.error("No se encontró el cliente")
+            return False
+        
+        id_cliente = response.data[0]['id_cliente']
+        
+        # Obtener los datos del carrito de la sesión
+        carrito = st.session_state.get('carrito', [])
+        if not carrito:
+            st.error("No hay productos en el carrito")
+            return False
+
+        # Obtener datos adicionales de cada producto
+        carrito_completo = []
+        total = 0
+        for item in carrito:
+            datos_producto = obtener_datos_producto(item['nombre'], item['marca'])
+            if datos_producto:
+                item_completo = {
+                    'id_producto': datos_producto['id_productos'],
+                    'nombre': item['nombre'],
+                    'marca': item['marca'],
+                    'precio': float(datos_producto['precio']),
+                    'cantidad': 1
+                }
+                carrito_completo.append(item_completo)
+                total += item_completo['precio'] * item_completo['cantidad']
+            else:
+                st.error(f"No se encontraron datos para el producto: {item['nombre']} - {item['marca']}")
+                return False
+
+        # Obtener el siguiente ID de carrito
+        id_carrito = obtener_siguiente_id_carrito()
+        if id_carrito is None:
+            st.error("No se pudo generar un ID para el carrito")
+            return False
+
+        # Insertar en la tabla Carrito
+        carrito_data = {
+            'id_carrito': id_carrito,
+            'id_cliente': id_cliente,
+            'fecha': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'total': float(total)
+        }
+        
+        response = supabase.table("Carrito").insert(carrito_data).execute()
+        if not response.data:
+            st.error("Error al guardar el carrito")
+            return False
+
+        # Insertar los detalles del carrito
+        detalles_guardados = []
+        for item in carrito_completo:
+            id_detalle = int(time.time() * 1000) + len(detalles_guardados)
+            
+            detalle_data = {
+                'id_detcarrito': id_detalle,
+                'id_carrito': id_carrito,
+                'id_producto': int(item['id_producto']),
+                'unidades': int(item['cantidad']),
+                'precio /u': float(item['precio'])
+            }
+            
+            try:
+                response = supabase.table("Det Carrito").insert(detalle_data).execute()
+                if response.data:
+                    detalles_guardados.append(detalle_data)
+                else:
+                    st.error(f"Error al guardar el detalle del producto {item['nombre']}")
+                    return False
+            except Exception as e:
+                st.error(f"Error al guardar el detalle del producto {item['nombre']}: {str(e)}")
+                return False
+
+        # Verificar que se guardaron todos los detalles
+        if len(detalles_guardados) != len(carrito_completo):
+            st.error("No se guardaron todos los detalles del carrito")
+            return False
+
+        # Limpiar el carrito de la sesión
+        st.session_state['carrito'] = []
+        return True
+
+    except Exception as e:
+        st.error(f"Error al guardar el carrito: {str(e)}")
+        return False
+
+# Guardar el carrito cuando se carga la página
+if guardar_carrito():
+    st.success("¡Tu pedido se ha guardado correctamente!")
 
 # Sidebar styling
 st.markdown("""

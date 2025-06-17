@@ -1,0 +1,15 @@
+[pages]
+# Solo mostrar estas páginas en el sidebar
+pages = [
+    "Inicio.py",
+    "Registro.py",
+    "Tu Super online.py"
+]
+
+# Ocultar el resto de las páginas
+hidePages = [
+    "Buscador de productos.py",
+    "Forma de Pago.py",
+    "Pedido exitoso.py",
+    "Mi perfil.py"
+] 
