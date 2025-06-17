@@ -1,60 +1,218 @@
 import streamlit as st
 from conexion import get_supabase_client
+from datetime import datetime
+import os
+import time
+from PIL import Image
+import base64
+from io import BytesIO
 
-st.set_page_config(page_title="Buscador de Productos", page_icon="🛒", layout="wide")
+# --- Función para convertir imagen a base64 ---
+def image_to_base64(img):
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG")
+    return base64.b64encode(buffer.getvalue()).decode()
+
+# Configuración de página
+st.set_page_config(
+    page_title="Buscador de Productos",
+    page_icon="🛒",
+    layout="wide"
+)
 
 # Inicializar cliente de Supabase
 supabase = get_supabase_client()
 
-# 🎨 Estilo visual
+# Estilo CSS
 st.markdown("""
     <style>
-    .main { background-color: #f0f4f8; }
-    h1, h2, h3, h4 { color: #003366; }
-    .stButton>button {
-        color: white;
-        background-color: #007BFF;
+    /* Color base de la página */
+    #root {
+        background-color: #D4DFF0 !important;
+    }
+    
+    .stApp {
+        background-color: #D4DFF0 !important;
+    }
+
+    html, body, .stApp, [data-testid="stAppViewContainer"], .main {
+        background-color: #D4DFF0 !important;
+        font-family: 'Inter', sans-serif !important;
+        color: #2B3674 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .block-container {
+        max-width: 1200px !important;
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        margin: 3rem !important;
+        background-color: #D4DFF0 !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+
+    h1, h2, h3, h4 {
+        color: #2B3674 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    .stButton > button {
+        background-color: #2B3674 !important;
+        color: white !important;
+        padding: 14px 30px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+
+    .stButton > button:hover {
+        background-color: #1A2156 !important;
+        box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    div.stButton {
+        text-align: center !important;
+        padding: 10px !important;
+    }
+
+    /* Separador decorativo */
+    .linea-separadora {
+        border-top: 1.5px solid #A8B8D8;
+        margin: 30px auto 20px auto;
+        width: 80%;
+    }
+
+    /* Ocultar/cambiar color del header y toolbar */
+    header[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+        height: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .stToolbar {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    [data-testid="stToolbar"] {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Remover cualquier cuadro blanco en la parte superior */
+    .stApp > div:first-child,
+    .stApp > header,
+    .stApp > div[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Si hay un elemento con clase específica que cause el cuadro blanco */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Ajustar el espacio del main container */
+    .main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        background-color: #D4DFF0 !important;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        background-color: #D4DFF0 !important;
+    }
+
+    /* Estilos para el campo de búsqueda */
+    .stTextInput > div > div > input {
+        background-color: white !important;
+        border-radius: 10px !important;
+        padding: 10px !important;
+        font-size: 16px !important;
+    }
+    .stTextInput > div > div > input::placeholder {
+        color: #666 !important;
+    }
+
+    /* Estilos para las tarjetas de productos */
+    .product-card {
+        background-color: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .cart-item {
+        background-color: #f0f8ff;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border-left: 4px solid #007BFF;
+    }
+    .best-price {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+    .price-comparison {
         background-color: white;
-        padding: 10px;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
         margin: 5px 0;
-        border-radius: 5px;
-        border-left: 3px solid #007BFF;
     }
-    .cheapest {
-        background-color: #e6ffe6;
-        border-left: 3px solid #28a745;
-    }
-    .comprar-button {
-        background-color: #28a745 !important;
-        color: white !important;
-        padding: 0.5rem 1rem !important;
-        border-radius: 5px !important;
-        border: none !important;
-        font-weight: bold !important;
+
+    /* Estilos para los títulos */
+    h3 {
+        text-align: center !important;
+        color: #2B3674 !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2) !important;
+        margin-bottom: 1.5rem !important;
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
         width: 100% !important;
-        margin-top: 10px !important;
-        transition: all 0.3s ease !important;
-    }
-    .comprar-button:hover {
-        background-color: #218838 !important;
-        transform: translateY(-2px) !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Buscador de Productos")
-st.caption("Seleccioná tus productos y encontrá el supermercado con el **menor precio total** en tu zona.")
-
-# 🧑 Obtener email desde sesión
+# Verificar sesión de usuario
 if "user_email" not in st.session_state:
-    st.error("🔐 Debés iniciar sesión para usar esta página.")
+    st.error("🔐 Debes iniciar sesión para usar esta página.")
     st.stop()
 
 usuario_email = st.session_state["user_email"]
 
-def obtener_codigo_postal(email):
+# Funciones de base de datos
+@st.cache_data
+def obtener_codigo_postal_usuario(email):
+    """Obtiene el código postal del usuario"""
     try:
         result = supabase.table("Cliente").select('"código postal"').eq("email", email).execute()
         if result.data and len(result.data) > 0:
@@ -65,187 +223,323 @@ def obtener_codigo_postal(email):
         return None
 
 @st.cache_data
-def obtener_productos_unicos():
+def obtener_todos_los_productos():
+    """Obtiene todos los productos únicos disponibles"""
     try:
-        result = supabase.table("Productos").select("nombre_producto,marca").execute()
+        result = supabase.table("Productos").select("nombre_producto, marca").execute()
         if result.data:
-            productos_unicos = set((p.get('nombre_producto', ''), p.get('marca', '')) for p in result.data)
-            return [{'nombre': nombre, 'marca': marca} for nombre, marca in productos_unicos]
+            productos_unicos = set()
+            for producto in result.data:
+                nombre = producto.get('nombre_producto', '').strip()
+                marca = producto.get('marca', '').strip()
+                if nombre and marca:
+                    productos_unicos.add((nombre, marca))
+            productos_lista = [{'nombre': nombre, 'marca': marca} for nombre, marca in productos_unicos]
+            return sorted(productos_lista, key=lambda x: x['nombre'].lower())
         return []
     except Exception as e:
         st.error(f"Error al obtener productos: {e}")
         return []
 
 @st.cache_data
-def obtener_precios_producto(nombre, marca):
+def obtener_supermercados_zona(codigo_postal):
+    """Obtiene supermercados en la zona del código postal"""
     try:
-        result = supabase.table("Productos").select("id_supermercado,precio").eq("nombre_producto", nombre).eq("marca", marca).execute()
-        return result.data if result.data else []
-    except Exception as e:
-        st.error(f"Error al obtener precios: {e}")
+        result = supabase.table("Supermercados").select("id_supermercado, nombre").eq('"código postal"', codigo_postal).execute()
+        if result.data:
+            return result.data
         return []
-
-@st.cache_data
-def obtener_supermercados_por_cp(cp):
-    try:
-        result = supabase.table("Supermercados").select("id_supermercado,nombre").eq("código postal", cp).execute()
-        return result.data if result.data else []
     except Exception as e:
         st.error(f"Error al obtener supermercados: {e}")
         return []
 
-# Inicializar el carrito
+@st.cache_data
+def obtener_precio_producto_supermercado(nombre_producto, marca, id_supermercado):
+    """Obtiene el precio de un producto específico en un supermercado específico"""
+    try:
+        result = supabase.table("Productos").select("precio").eq("nombre_producto", nombre_producto).eq("marca", marca).eq("id_supermercado", id_supermercado).execute()
+        if result.data and len(result.data) > 0:
+            return result.data[0]["precio"]
+        return None
+    except Exception as e:
+        st.error(f"Error al obtener precio: {e}")
+        return None
+
+def calcular_mejor_opcion(carrito, codigo_postal):
+    """Calcula qué supermercado tiene el menor precio total para el carrito"""
+    supermercados = obtener_supermercados_zona(codigo_postal)
+    
+    if not supermercados:
+        return None, None
+    
+    resultados = []
+    
+    for supermercado in supermercados:
+        id_super = supermercado['id_supermercado']
+        nombre_super = supermercado['nombre']
+        total = 0
+        productos_disponibles = True
+        
+        for producto in carrito:
+            precio = obtener_precio_producto_supermercado(
+                producto['nombre'], 
+                producto['marca'], 
+                id_super
+            )
+            
+            if precio is not None:
+                total += precio
+            else:
+                productos_disponibles = False
+                break
+        
+        if productos_disponibles:
+            resultados.append({
+                'id': id_super,
+                'nombre': nombre_super,
+                'total': total
+            })
+    
+    if resultados:
+        resultados.sort(key=lambda x: x['total'])
+        return resultados, resultados[0]
+    
+    return None, None
+
+# Inicializar carrito en session_state
 if "carrito" not in st.session_state:
     st.session_state.carrito = []
 
-# 1️⃣ Obtener código postal del cliente
-codigo_postal = obtener_codigo_postal(usuario_email)
+# --- Cargar imagen y convertir a base64 ---
+logo_b64 = None
+try:
+    # Intentar cargar la imagen desde la raíz del proyecto
+    logo_path = "fondo del titulo.jpg"
+    if os.path.exists(logo_path):
+        logo_img = Image.open(logo_path)
+        logo_b64 = image_to_base64(logo_img)
+    else:
+        st.warning("No se encontró la imagen de fondo")
+except Exception as e:
+    st.warning(f"No se pudo cargar la imagen: {e}")
+
+# INTERFAZ PRINCIPAL
+if logo_b64:
+    st.markdown(f"""
+        <div style="
+            background-image: url('data:image/jpeg;base64,{logo_b64}');
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 2.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>🛒 Buscador de Productos</h1>
+        </div>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <div style="
+            background-color: #2B3674;
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 1.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>🛒 Buscador de Productos</h1>
+        </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("**Encuentra el supermercado con menor precio total en tu zona**")
+
+# Obtener código postal del usuario
+codigo_postal = obtener_codigo_postal_usuario(usuario_email)
 if not codigo_postal:
-    st.error("⚠️ No se encontró el código postal para este usuario.")
+    st.error("⚠️ No se encontró tu código postal. Por favor, actualiza tu perfil.")
     st.stop()
 
-# 2️⃣ Búsqueda de productos
-productos = obtener_productos_unicos()
-if not productos:
-    st.error("No se pudieron cargar los productos. Por favor, intenta nuevamente.")
+st.info(f"📍 Buscando supermercados en tu zona: **{codigo_postal}**")
+
+# Obtener productos disponibles
+productos_disponibles = obtener_todos_los_productos()
+if not productos_disponibles:
+    st.error("❌ No se pudieron cargar los productos. Intenta nuevamente.")
     st.stop()
 
-busqueda = st.text_input("🔍 Buscar por producto o marca:", "").lower()
-
-productos_filtrados = [
-    p for p in productos 
-    if busqueda in p.get("nombre", "").lower() or busqueda in p.get("marca", "").lower()
-]
-
-col1, col2 = st.columns([2, 1])
+# Layout en columnas
+col1, col2 = st.columns([3, 2])
 
 with col1:
-    st.subheader("📋 Productos Disponibles")
-    for producto in productos_filtrados:
-        key = f"prod_{producto.get('nombre', '')}_{producto.get('marca', '')}"
-        if st.checkbox(f"{producto.get('nombre', '')} - {producto.get('marca', '')}", key=key):
-            if producto not in st.session_state.carrito:
+    st.markdown('<h3 style="text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">📋 Seleccionar Productos</h3>', unsafe_allow_html=True)
+    
+    # Tipo de búsqueda
+    tipo_busqueda = st.radio("Buscar por:", ["Producto", "Marca"], horizontal=True)
+    
+    # Inicializar busqueda
+    busqueda = ""
+    
+    if tipo_busqueda == "Producto":
+        # Buscador de productos
+        busqueda = st.text_input("🔍 Buscar productos:", placeholder="Escribe el nombre del producto...", key="busqueda_input")
+        
+        # Filtrar productos según búsqueda
+        if busqueda:
+            busqueda = busqueda.lower().strip()
+            productos_filtrados = []
+            for p in productos_disponibles:
+                nombre = p['nombre'].lower()
+                if busqueda in nombre:
+                    productos_filtrados.append(p)
+            
+            productos_filtrados.sort(key=lambda x: x['nombre'].lower())
+        else:
+            productos_filtrados = productos_disponibles[:20]
+    else:
+        # Obtener marcas únicas
+        marcas = sorted(list(set(p['marca'] for p in productos_disponibles)))
+        marca_seleccionada = st.selectbox("Selecciona una marca:", marcas)
+        
+        # Filtrar productos por marca
+        productos_filtrados = [p for p in productos_disponibles if p['marca'] == marca_seleccionada]
+    
+    st.caption(f"Mostrando {len(productos_filtrados)} productos")
+    
+    # Mostrar productos con checkboxes
+    for i, producto in enumerate(productos_filtrados):
+        key = f"check_{producto['nombre']}_{producto['marca']}_{i}"
+        
+        producto_en_carrito = any(
+            p['nombre'] == producto['nombre'] and p['marca'] == producto['marca'] 
+            for p in st.session_state.carrito
+        )
+        
+        nombre_display = producto['nombre']
+        marca_display = producto['marca']
+        if busqueda:
+            nombre_display = nombre_display.replace(busqueda, f"**{busqueda}**")
+            marca_display = marca_display.replace(busqueda, f"**{busqueda}**")
+        
+        if st.checkbox(
+            f"**{nombre_display}** - {marca_display}", 
+            value=producto_en_carrito,
+            key=key
+        ):
+            if not producto_en_carrito:
                 st.session_state.carrito.append(producto)
-        elif producto in st.session_state.carrito:
-            st.session_state.carrito.remove(producto)
+        else:
+            if producto_en_carrito:
+                st.session_state.carrito = [
+                    p for p in st.session_state.carrito 
+                    if not (p['nombre'] == producto['nombre'] and p['marca'] == producto['marca'])
+                ]
 
 with col2:
-    st.subheader("🛒 Mi Carrito")
+    st.markdown('<h3 style="text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">🛒 Mi Carrito</h3>', unsafe_allow_html=True)
+    
     if not st.session_state.carrito:
-        st.info("Tu carrito está vacío")
+        st.info("Tu carrito está vacío\n\nSelecciona productos de la izquierda")
     else:
         for producto in st.session_state.carrito:
             st.markdown(f"""
             <div class="cart-item">
-                <strong>{producto.get('nombre', '')}</strong><br>
-                <small>{producto.get('marca', '')}</small>
+                <strong>{producto['nombre']}</strong><br>
+                <small style="color: #666;">{producto['marca']}</small>
             </div>
             """, unsafe_allow_html=True)
-
-        if st.button("Calcular Precios", type="primary"):
-            supermercados = obtener_supermercados_por_cp(codigo_postal)
-            if not supermercados:
-                st.error(f"No hay supermercados disponibles en tu zona (CP: {codigo_postal}).")
-                st.stop()
-
-            supermercado_nombres = {str(s['id_supermercado']): s['nombre'] for s in supermercados}
-            supermercado_totales = {str(s['id_supermercado']): 0 for s in supermercados}
-
-            for supermercado_id in supermercado_totales:
-                total = 0
-                disponible = True
-                for producto in st.session_state.carrito:
-                    precios = obtener_precios_producto(producto['nombre'], producto['marca'])
-                    precios_super = [p['precio'] for p in precios if str(p['id_supermercado']) == supermercado_id]
-                    if precios_super:
-                        total += min(precios_super)
-                    else:
-                        disponible = False
-                        break
-                supermercado_totales[supermercado_id] = total if disponible else None
-
-            st.subheader("💰 Precios por Supermercado")
-            ordenados = sorted(
-                [(k, v) for k, v in supermercado_totales.items() if v is not None],
-                key=lambda x: x[1]
-            )
-
-            if ordenados:
-                supermercado_mas_barato = ordenados[0]
+        
+        st.markdown(f"**Total de productos:** {len(st.session_state.carrito)}")
+        
+        if st.button("💰 Calcular Mejor Precio", type="primary", use_container_width=True):
+            with st.spinner("Calculando precios en todos los supermercados..."):
+                todos_resultados, mejor_opcion = calcular_mejor_opcion(st.session_state.carrito, codigo_postal)
                 
-                # Guardar datos en session_state
-                st.session_state["supermercado_seleccionado"] = supermercado_nombres[supermercado_mas_barato[0]]
-                st.session_state["total_compra"] = supermercado_mas_barato[1]
-                st.session_state["productos_compra"] = st.session_state.carrito.copy()
-
-                for i, (supermercado_id, total) in enumerate(ordenados):
-                    nombre = supermercado_nombres[supermercado_id]
-                    es_mas_barato = i == 0
-                    clase = "cheapest" if es_mas_barato else ""
+                if mejor_opcion:
+                    st.success("✅ ¡Cálculo completado!")
+                    
+                    # Guardar datos para la compra
+                    st.session_state["supermercado_seleccionado"] = mejor_opcion['nombre']
+                    st.session_state["total_compra"] = mejor_opcion['total']
+                    st.session_state["productos_compra"] = st.session_state.carrito.copy()
+                    st.session_state["fecha_compra"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    st.session_state["compra_confirmada"] = True
+                    st.session_state["mostrar_resultados"] = True
+                    
+                    # Mostrar mejor opción destacada
                     st.markdown(f"""
-                    <div class="cart-item {clase}">
-                        <h4>🏬 {nombre}</h4>
-                        <p>Total: <strong style="color:#007BFF">${total:.2f}</strong></p>
-                        {"<p style='color:#28a745'>¡El más barato! 💰</p>" if es_mas_barato else ""}
+                    <div class="best-price">
+                        <h3>🏆 Mejor Opción</h3>
+                        <h4>🏬 {mejor_opcion['nombre']}</h4>
+                        <h2 style="color: #28a745;">Total: ${mejor_opcion['total']:.2f}</h2>
+                        <p>¡El precio más bajo para tu carrito!</p>
                     </div>
                     """, unsafe_allow_html=True)
+                    
+                    # Mostrar comparación con otros supermercados
+                    if len(todos_resultados) > 1:
+                        st.subheader("📊 Comparación de Precios")
+                        for resultado in todos_resultados:
+                            diferencia = resultado['total'] - mejor_opcion['total']
+                            st.markdown(f"""
+                            <div class="price-comparison">
+                                <strong>🏬 {resultado['nombre']}</strong><br>
+                                Total: <strong>${resultado['total']:.2f}</strong>
+                                {f"<span style='color: #dc3545;'> (+${diferencia:.2f})</span>" if diferencia > 0 else ""}
+                            </div>
+                            """, unsafe_allow_html=True)
+                
+                else:
+                    st.warning("😔 No hay supermercados en tu zona que tengan todos los productos seleccionados.")
+                    st.info("Intenta con menos productos o productos diferentes.")
+                    st.session_state["mostrar_resultados"] = False
 
-                # Botón único de compra
-                if st.button("🛒 Comprar en el supermercado más barato", key="comprar", use_container_width=True):
-                    st.session_state["supermercado_seleccionado"] = supermercado_nombres[supermercado_mas_barato[0]]
-                    st.session_state["total_compra"] = supermercado_mas_barato[1]
-                    st.session_state["productos_compra"] = st.session_state.carrito.copy()
-                    st.switch_page("Forma de Pago.py")
+# Mostrar botón de compra solo si hay resultados
+if st.session_state.get("mostrar_resultados", False):
+    if st.button("🛒 Realizar Compra", type="primary", use_container_width=True):
+        st.switch_page("pages/Forma de Pago.py")
 
-            else:
-                st.warning("😢 No se encontraron supermercados que tengan todos los productos seleccionados.")
+# Mostrar estado de compra confirmada si existe
+if st.session_state.get("compra_confirmada"):
+    st.markdown("---")
+    st.markdown("### ✅ Compra Preparada")
+    st.info(f"""
+    **🏬 Supermercado:** {st.session_state.get('supermercado_seleccionado')}  
+    **💰 Total:** ${st.session_state.get('total_compra', 0):.2f}  
+    **📦 Productos:** {len(st.session_state.get('productos_compra', []))} items
+    
+    **📋 Puedes proceder al pago usando el menú lateral → 'Forma de Pago'**
+    """)
 
-# Verificar si hay que mostrar página de pago o redirección
-if "redirect_to_payment" in st.session_state and st.session_state["redirect_to_payment"]:
-    st.session_state["redirect_to_payment"] = False
-    
-    # Mostrar página de pago directamente o mensaje de redirección
-    st.info("🔄 Procesando compra...")
-    
-    # Opción 1: Mostrar la página de pago aquí mismo
-    st.subheader("💳 Forma de Pago")
-    st.write(f"**Supermercado:** {st.session_state.get('supermercado_seleccionado', 'N/A')}")
-    st.write(f"**Total:** ${st.session_state.get('total_compra', 0):.2f}")
-    
-    if st.button("Volver al buscador"):
-        del st.session_state["redirect_to_payment"]
+# Limpiar carrito
+if st.session_state.carrito:
+    if st.button("🗑️ Vaciar Carrito", use_container_width=True):
+        st.session_state.carrito = []
+        st.session_state["mostrar_resultados"] = False
         st.rerun()
-    
-    # Opción 2: JavaScript más fuerte para redirección
+
+# Información adicional
+with st.expander("ℹ️ Información"):
     st.markdown("""
-    <script>
-    // Redirección más agresiva
-    setTimeout(function() {
-        console.log('Intentando redirección...');
-        var methods = [
-            function() { window.location.replace('/Forma_de_Pago'); },
-            function() { window.location.href = '/Forma_de_Pago'; },
-            function() { window.top.location = '/Forma_de_Pago'; },
-            function() { window.parent.location = '/Forma_de_Pago'; },
-            function() { 
-                // Si nada funciona, recargar con parámetro
-                window.location.href = window.location.origin + '/?page=forma_de_pago';
-            }
-        ];
-        
-        for(let i = 0; i < methods.length; i++) {
-            try {
-                methods[i]();
-                break;
-            } catch(e) {
-                console.log('Método ' + i + ' falló:', e);
-                if(i === methods.length - 1) {
-                    console.log('Todos los métodos de redirección fallaron');
-                }
-            }
-        }
-    }, 1000);
-    </script>
-    """, unsafe_allow_html=True)
+    **¿Cómo funciona?**
+    1. Selecciona los productos que quieras comprar
+    2. Haz clic en "Calcular Mejor Precio"
+    3. Te mostramos qué supermercado tiene el precio total más bajo
+    4. Serás redirigido automáticamente a la página de pago
     
-    st.stop()  # Detener la ejecución del resto de la página
+    **Nota:** Solo se muestran supermercados de tu zona que tengan todos los productos disponibles.
+    """)

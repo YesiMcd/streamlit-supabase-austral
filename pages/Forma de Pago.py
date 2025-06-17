@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
+import os
 
 # --- Configuración de la página ---
 st.set_page_config(
@@ -17,9 +18,57 @@ def image_to_base64(img):
     return base64.b64encode(buffer.getvalue()).decode()
 
 # --- Cargar imagen y convertir a base64 ---
-logo_path = "C:/Users/anelm/OneDrive/Escritorio/Superlisto/streamlit-supabase-austral/fondo del titulo.jpg"
-logo_img = Image.open(logo_path)
-logo_b64 = image_to_base64(logo_img)
+logo_b64 = None
+try:
+    # Intentar cargar la imagen desde la raíz del proyecto
+    logo_path = "fondo del titulo.jpg"
+    if os.path.exists(logo_path):
+        logo_img = Image.open(logo_path)
+        logo_b64 = image_to_base64(logo_img)
+    else:
+        # Si no se encuentra la imagen, usar un color de fondo sólido
+        st.markdown("""
+            <div style="
+                background-color: #2B3674;
+                width: 100%;
+                height: 100px;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                margin-bottom: 20px;
+            ">
+                <h1 style='
+                    font-size: 2.5rem;
+                    color: white;
+                    margin: 0;
+                    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+                '>💰 Forma de Pago</h1>
+            </div>
+        """, unsafe_allow_html=True)
+except Exception as e:
+    # Si hay algún error, usar un color de fondo sólido
+    st.markdown("""
+        <div style="
+            background-color: #2B3674;
+            width: 100%;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 2.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>💰 Forma de Pago</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- Estilos globales ---
 st.markdown("""
@@ -118,28 +167,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Banner con título centrado ---
-st.markdown(f"""
-    <div style="
-        background-image: url('data:image/jpeg;base64,{logo_b64}');
-        background-size: cover;
-        background-position: center;
-        width: 100%;
-        height: 100px;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin-bottom: 20px;
-    ">
-        <h1 style='
-            font-size: 2.5rem;
-            color: white;
-            margin: 0;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-        '>💰 Forma de Pago</h1>
-    </div>
-""", unsafe_allow_html=True)
+if logo_b64:
+    st.markdown(f"""
+        <div style="
+            background-image: url('data:image/jpeg;base64,{logo_b64}');
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 2.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>💰 Forma de Pago</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- Frase debajo del título ---
 st.markdown("### Selecciona tu método de pago preferido")

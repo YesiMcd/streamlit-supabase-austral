@@ -95,4 +95,4 @@ with st.form("formulario_tarjeta"):
 
 # Botón volver
 if st.button("← Volver"):
-    st.switch_page("pages/Forma de pago.py")
+    st.switch_page("pages/Forma de Pago.py")
