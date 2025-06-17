@@ -44,6 +44,40 @@ st.markdown(f"""
             background-color: #D4DFF0 !important;
         }}
         
+        /* Sidebar styling */
+        [data-testid="stSidebar"] {{
+            background-color: #2C3E50 !important;
+        }}
+        [data-testid="stSidebar"] .sidebar-content {{
+            background-color: #2C3E50 !important;
+        }}
+        [data-testid="stSidebar"] * {{
+            color: white !important;
+            font-family: 'Poppins', sans-serif !important;
+        }}
+        [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {{
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            padding: 12px 20px !important;
+            margin: 8px 0 !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+            display: block !important;
+            text-decoration: none !important;
+        }}
+        [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {{
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            transform: translateX(5px) !important;
+        }}
+        [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {{
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            font-weight: 700 !important;
+        }}
+
+        header, footer, [data-testid="stToolbar"] {{
+            display: none !important;
+        }}
+        
         .block-container {{
             padding-top: 0rem;
         }}

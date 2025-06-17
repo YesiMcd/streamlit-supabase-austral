@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
+import os
 
 # --- Configuración de la página ---
 st.set_page_config(
@@ -17,9 +18,15 @@ def image_to_base64(img):
     return base64.b64encode(buffer.getvalue()).decode()
 
 # --- Cargar imagen y convertir a base64 ---
-logo_path = "C:/Users/anelm/OneDrive/Escritorio/Superlisto/streamlit-supabase-austral/fondo del titulo.jpg"
-logo_img = Image.open(logo_path)
-logo_b64 = image_to_base64(logo_img)
+logo_b64 = None
+try:
+    # Intentar cargar la imagen desde la raíz del proyecto
+    logo_path = "fondo del titulo.jpg"
+    if os.path.exists(logo_path):
+        logo_img = Image.open(logo_path)
+        logo_b64 = image_to_base64(logo_img)
+except Exception as e:
+    st.warning(f"No se pudo cargar la imagen: {e}")
 
 # --- Estilos globales ---
 st.markdown("""
@@ -49,6 +56,24 @@ st.markdown("""
     [data-testid="stSidebar"] * {
         color: white !important;
         font-family: 'Poppins', sans-serif !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        padding: 12px 20px !important;
+        margin: 8px 0 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+        display: block !important;
+        text-decoration: none !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        transform: translateX(5px) !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        font-weight: 700 !important;
     }
 
     h1, h2, h3, h4 {
@@ -118,28 +143,50 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Banner superior con imagen de fondo ---
-st.markdown(f"""
-    <div style="
-        background-image: url('data:image/jpeg;base64,{logo_b64}');
-        background-size: cover;
-        background-position: center;
-        width: 100%;
-        height: 100px;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin-bottom: 20px;
-    ">
-        <h1 style='
-            font-size: 2.5rem;
-            color: white;
-            margin: 0;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-        '>💵 Pago en Efectivo</h1>
-    </div>
-""", unsafe_allow_html=True)
+if logo_b64:
+    st.markdown(f"""
+        <div style="
+            background-image: url('data:image/jpeg;base64,{logo_b64}');
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 2.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>💵 Pago en Efectivo</h1>
+        </div>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <div style="
+            background-color: #2B3674;
+            width: 100%;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+        ">
+            <h1 style='
+                font-size: 2.5rem;
+                color: white;
+                margin: 0;
+                text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            '>💵 Pago en Efectivo</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- Frase informativa ---
 st.markdown("### Selecciona una opción")
