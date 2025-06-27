@@ -374,25 +374,43 @@ if datos_usuario:
             # Crear DataFrame para el gráfico
             df = pd.DataFrame(productos_frecuentes, columns=['Producto', 'Cantidad'])
             
-            # Crear gráfico de torta con colores más llamativos
-            fig = px.pie(df, values='Cantidad', names='Producto', 
+            # Crear gráfico de barras ordenado (ya viene ordenado de la función)
+            fig = px.bar(df, x='Cantidad', y='Producto', 
                         title='Productos Más Comprados',
-                        color_discrete_sequence=['#FF6B6B', '#4ECDC4', '#45B7D1'])
+                        orientation='h',  # Barras horizontales
+                        color='Cantidad',
+                        color_continuous_scale=['#FF6B6B', '#4ECDC4', '#45B7D1'])
             
             # Personalizar el gráfico
-            fig.update_traces(
-                textposition='inside',
-                textinfo='label',
-                textfont_size=14,
-                textfont_color='white',
-                marker=dict(line=dict(color='white', width=2))
-            )
             fig.update_layout(
-                showlegend=False,
+                xaxis_title="Cantidad Comprada",
+                yaxis_title="Productos",
                 title_font_size=20,
                 title_font_color='#2B3674',
                 paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)'
+                plot_bgcolor='rgba(0,0,0,0)',
+                yaxis={'categoryorder': 'total ascending'},  # Ordenar por valores
+                showlegend=False,
+                height=400
+            )
+            
+            # Personalizar las barras
+            fig.update_traces(
+                texttemplate='%{x}',
+                textposition='outside',
+                textfont_size=12,
+                textfont_color='#2B3674'
+            )
+            
+            # Personalizar los ejes
+            fig.update_xaxes(
+                showgrid=True,
+                gridwidth=1,
+                gridcolor='lightgray',
+                title_font_color='#2B3674'
+            )
+            fig.update_yaxes(
+                title_font_color='#2B3674'
             )
             
             # Mostrar el gráfico
