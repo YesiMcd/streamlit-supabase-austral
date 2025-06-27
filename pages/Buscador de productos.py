@@ -28,202 +28,98 @@ configure_sidebar()
 # Inicializar cliente de Supabase
 supabase = get_supabase_client()
 
-# Estilo CSS
-st.markdown("""
-    <style>
-    /* Color base de la página */
-    #root {
-        background-color: #D4DFF0 !important;
-    }
-    
-    .stApp {
-        background-color: #D4DFF0 !important;
-    }
+def guardar_carrito_actual():
+    """Guarda el carrito actual de la sesión como un carrito guardado"""
+    try:
+        # Obtener el email del usuario de la sesión
+        email = st.session_state.get('user_email')
+        if not email:
+            st.error("No se encontró la sesión del usuario")
+            return False
 
-    html, body, .stApp, [data-testid="stAppViewContainer"], .main {
-        background-color: #D4DFF0 !important;
-        font-family: 'Inter', sans-serif !important;
-        color: #2B3674 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+        # Obtener el ID del cliente
+        response = supabase.table("Cliente").select("id_cliente").eq("email", email).execute()
+        if not response.data:
+            st.error("No se encontró el cliente")
+            return False
+        
+        id_cliente = response.data[0]['id_cliente']
+        
+        # Obtener los datos del carrito de la sesión
+        carrito = st.session_state.get('carrito', [])
+        if not carrito:
+            st.error("No hay productos en el carrito actual")
+            return False
 
-    .block-container {
-        max-width: 1200px !important;
-        padding-top: 1rem !important;
-        padding-bottom: 2rem !important;
-        margin: 3rem !important;
-        background-color: #D4DFF0 !important;
-    }
+        # Obtener datos adicionales de cada producto
+        carrito_completo = []
+        total = 0
+        for item in carrito:
+            # Obtener datos del producto
+            response = supabase.table("Productos").select("id_productos, precio").eq("nombre_producto", item['nombre']).eq("marca", item['marca']).execute()
+            
+            if response.data and len(response.data) > 0:
+                datos_producto = response.data[0]
+                item_completo = {
+                    'id_producto': datos_producto['id_productos'],
+                    'nombre': item['nombre'],
+                    'marca': item['marca'],
+                    'precio': float(datos_producto['precio']),
+                    'cantidad': item.get('cantidad', 1)
+                }
+                carrito_completo.append(item_completo)
+                total += item_completo['precio'] * item_completo['cantidad']
+            else:
+                st.error(f"No se encontraron datos para el producto: {item['nombre']} - {item['marca']}")
+                return False
 
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', sans-serif !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }
+        # Obtener el siguiente ID de carrito
+        response = supabase.table("Carrito").select("id_carrito").order("id_carrito", desc=True).limit(1).execute()
+        if response.data and len(response.data) > 0:
+            id_carrito = int(response.data[0]['id_carrito']) + 1
+        else:
+            id_carrito = 1
 
-    h1, h2, h3, h4 {
-        color: #2B3674 !important;
-        font-family: 'Inter', sans-serif !important;
-    }
+        # Insertar en la tabla Carrito
+        carrito_data = {
+            'id_carrito': id_carrito,
+            'id_cliente': id_cliente,
+            'fecha': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'total': float(total),
+            'estado': 'guardado'
+        }
+        
+        response = supabase.table("Carrito").insert(carrito_data).execute()
+        if not response.data:
+            st.error("Error al guardar el carrito")
+            return False
 
-    .stButton > button {
-        background-color: #2B3674 !important;
-        color: white !important;
-        padding: 14px 30px !important;
-        border-radius: 10px !important;
-        border: none !important;
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
-        width: 100% !important;
-        margin: 10px 0 !important;
-    }
+        # Insertar los detalles del carrito
+        for item in carrito_completo:
+            id_detalle = int(time.time() * 1000) + carrito_completo.index(item)
+            
+            detalle_data = {
+                'id_detcarrito': id_detalle,
+                'id_carrito': id_carrito,
+                'id_producto': int(item['id_producto']),
+                'unidades': int(item['cantidad']),
+                'precio /u': float(item['precio'])
+            }
+            
+            try:
+                response = supabase.table("Det Carrito").insert(detalle_data).execute()
+                if not response.data:
+                    st.error(f"Error al guardar el detalle del producto {item['nombre']}")
+                    return False
+            except Exception as e:
+                st.error(f"Error al guardar el detalle del producto {item['nombre']}: {str(e)}")
+                return False
 
-    .stButton > button:hover {
-        background-color: #1A2156 !important;
-        box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
-        transform: translateY(-2px) !important;
-    }
+        return True
 
-    div.stButton {
-        text-align: center !important;
-        padding: 10px !important;
-    }
-
-    /* Separador decorativo */
-    .linea-separadora {
-        border-top: 1.5px solid #A8B8D8;
-        margin: 30px auto 20px auto;
-        width: 80%;
-    }
-
-    /* Ocultar/cambiar color del header y toolbar */
-    header[data-testid="stHeader"] {
-        background-color: #D4DFF0 !important;
-        height: 0px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    .stToolbar {
-        background-color: #D4DFF0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    [data-testid="stToolbar"] {
-        background-color: #D4DFF0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* Remover cualquier cuadro blanco en la parte superior */
-    .stApp > div:first-child,
-    .stApp > header,
-    .stApp > div[data-testid="stHeader"] {
-        background-color: #D4DFF0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* Si hay un elemento con clase específica que cause el cuadro blanco */
-    div[data-testid="stVerticalBlock"] > div:first-child {
-        background-color: #D4DFF0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* Ajustar el espacio del main container */
-    .main {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-        background-color: #D4DFF0 !important;
-    }
-
-    [data-testid="stAppViewContainer"] {
-        background-color: #D4DFF0 !important;
-    }
-
-    /* Estilos para el campo de búsqueda */
-    .stTextInput > div > div > input {
-        background-color: white !important;
-        border-radius: 10px !important;
-        padding: 10px !important;
-        font-size: 16px !important;
-    }
-    .stTextInput > div > div > input::placeholder {
-        color: #666 !important;
-    }
-
-    /* Estilos para las tarjetas de productos */s
-    .product-card {
-        background-color: white;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .cart-item {
-        background-color: #f0f8ff;
-        padding: 12px;
-        margin: 8px 0;
-        border-radius: 8px;
-        border-left: 4px solid #007BFF;
-    }
-    .best-price {
-        background-color: #d4edda;
-        border-left: 4px solid #28a745;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 10px 0;
-    }
-    .price-comparison {
-        background-color: white;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-        margin: 5px 0;
-    }
-
-    /* Estilos para los títulos */
-    h3 {
-        text-align: center !important;
-        color: #2B3674 !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2) !important;
-        margin-bottom: 1.5rem !important;
-        font-size: 1.8rem !important;
-        font-weight: 600 !important;
-        width: 100% !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Error al guardar el carrito: {str(e)}")
+        return False
 
 # Verificar sesión de usuario
 if "user_email" not in st.session_state:
@@ -583,10 +479,22 @@ if st.session_state.get("compra_confirmada"):
 
 # Limpiar carrito
 if st.session_state.carrito:
-    if st.button("🗑️ Vaciar Carrito", use_container_width=True):
-        st.session_state.carrito = []
-        st.session_state["mostrar_resultados"] = False
-        st.rerun()
+    col_limpiar, col_guardar = st.columns(2)
+    
+    with col_limpiar:
+        if st.button("🗑️ Vaciar Carrito", use_container_width=True):
+            st.session_state.carrito = []
+            st.session_state["mostrar_resultados"] = False
+            st.rerun()
+    
+    with col_guardar:
+        if st.button("💾 Guardar Carrito", use_container_width=True):
+            # Guardar el carrito en la base de datos
+            if guardar_carrito_actual():
+                st.success("✅ Carrito guardado exitosamente")
+                st.switch_page("pages/Tu Super online.py")
+            else:
+                st.error("❌ Error al guardar el carrito")
 
 # Información adicional
 with st.expander("ℹ️ Información"):
@@ -599,3 +507,200 @@ with st.expander("ℹ️ Información"):
     
     **Nota:** Solo se muestran supermercados de tu zona que tengan todos los productos disponibles.
     """)
+
+# Estilo CSS
+st.markdown("""
+    <style>
+    /* Color base de la página */
+    #root {
+        background-color: #D4DFF0 !important;
+    }
+    
+    .stApp {
+        background-color: #D4DFF0 !important;
+    }
+
+    html, body, .stApp, [data-testid="stAppViewContainer"], .main {
+        background-color: #D4DFF0 !important;
+        font-family: 'Inter', sans-serif !important;
+        color: #2B3674 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .block-container {
+        max-width: 1200px !important;
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        margin: 3rem !important;
+        background-color: #D4DFF0 !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content {
+        background-color: #2C3E50 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        padding: 12px 20px !important;
+        margin: 8px 0 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+        display: block !important;
+        text-decoration: none !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        transform: translateX(5px) !important;
+    }
+    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        font-weight: 700 !important;
+    }
+
+    h1, h2, h3, h4 {
+        color: #2B3674 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    .stButton > button {
+        background-color: #2B3674 !important;
+        color: white !important;
+        padding: 14px 30px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+
+    .stButton > button:hover {
+        background-color: #1A2156 !important;
+        box-shadow: 0 6px 18px rgba(26, 33, 86, 0.35) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    div.stButton {
+        text-align: center !important;
+        padding: 10px !important;
+    }
+
+    /* Separador decorativo */
+    .linea-separadora {
+        border-top: 1.5px solid #A8B8D8;
+        margin: 30px auto 20px auto;
+        width: 80%;
+    }
+
+    /* Ocultar/cambiar color del header y toolbar */
+    header[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+        height: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .stToolbar {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    [data-testid="stToolbar"] {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Remover cualquier cuadro blanco en la parte superior */
+    .stApp > div:first-child,
+    .stApp > header,
+    .stApp > div[data-testid="stHeader"] {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Si hay un elemento con clase específica que cause el cuadro blanco */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        background-color: #D4DFF0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Ajustar el espacio del main container */
+    .main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        background-color: #D4DFF0 !important;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        background-color: #D4DFF0 !important;
+    }
+
+    /* Estilos para el campo de búsqueda */
+    .stTextInput > div > div > input {
+        background-color: white !important;
+        border-radius: 10px !important;
+        padding: 10px !important;
+        font-size: 16px !important;
+    }
+    .stTextInput > div > div > input::placeholder {
+        color: #666 !important;
+    }
+
+    /* Estilos para las tarjetas de productos */
+    .product-card {
+        background-color: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .cart-item {
+        background-color: #f0f8ff;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border-left: 4px solid #007BFF;
+    }
+    .best-price {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+    .price-comparison {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        margin: 5px 0;
+    }
+
+    /* Estilos para los títulos */
+    h3 {
+        text-align: center !important;
+        color: #2B3674 !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2) !important;
+        margin-bottom: 1.5rem !important;
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
