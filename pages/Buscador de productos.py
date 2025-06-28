@@ -537,10 +537,10 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] {
-        background-color: #2C3E50 !important;
+        background-color: #5b7d9e !important;
     }
     [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50 !important;
+        background-color: #5b7d9e !important;
     }
     [data-testid="stSidebar"] * {
         color: white !important;
@@ -632,12 +632,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* Si hay un elemento con clase específica que cause el cuadro blanco */
-    div[data-testid="stVerticalBlock"] > div:first-child {
-        background-color: #D4DFF0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+
 
     /* Ajustar el espacio del main container */
     .main {

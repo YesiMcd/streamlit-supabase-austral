@@ -14,6 +14,253 @@ st.set_page_config(
     layout="centered"
 )
 
+# --- Función para configurar el sidebar ---
+def configure_sidebar():
+    """Configura el sidebar para mostrar solo las páginas principales."""
+    
+    # Aplicar CSS para ocultar todas las páginas excepto las principales
+    st.markdown("""
+        <style>
+            /* Ocultar todas las páginas por defecto */
+            div[data-testid="stSidebarNav"] ul {
+                display: none !important;
+            }
+            
+            /* Mostrar solo las páginas permitidas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(1), /* Inicio */
+            div[data-testid="stSidebarNav"] ul li:nth-child(2), /* Registro */
+            div[data-testid="stSidebarNav"] ul li:nth-child(3) { /* Tu Super online */
+                display: block !important;
+            }
+            
+            /* Ocultar específicamente las páginas no deseadas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(n+4) {
+                display: none !important;
+            }
+            
+            /* Estilo del sidebar - fondo completo */
+            div[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] .sidebar-content {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            /* Estilo del título de navegación - posicionado más arriba */
+            div[data-testid="stSidebar"] h1 {
+                margin-top: -10px !important;
+                padding-top: 15px !important;
+                color: white !important;
+                font-family: 'Poppins', sans-serif !important;
+            }
+            
+            div[data-testid="stSidebar"] * {
+                color: white !important;
+                font-family: 'Poppins', sans-serif !important;
+            }
+            
+            /* Estilo de los botones del sidebar - IMPORTANTE: asegurar que sean visibles */
+            div[data-testid="stSidebar"] .stButton {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button {
+                background-color: #4b6783 !important;
+                color: white !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button:hover {
+                background-color: #3a5570 !important;
+                transform: translateX(5px) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            }
+            
+            /* Asegurar que el contenedor del sidebar sea visible */
+            div[data-testid="stSidebar"] .element-container {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            /* Estilo para los enlaces de navegación */
+            div[data-testid="stSidebarNav"] ul li a {
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                display: block !important;
+                text-decoration: none !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                transform: translateX(5px) !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a.active {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                font-weight: 700 !important;
+            }
+            
+            /* Quitar fondo blanco del título "Navegación" */
+            div[data-testid="stSidebar"] .stMarkdown {
+                background-color: transparent !important;
+            }
+            
+            div[data-testid="stSidebar"] .element-container {
+                background-color: transparent !important;
+            }
+            
+            /* Quitar fondo del elemento que causa el cuadro blanco */
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
+                background-color: transparent !important;
+            }
+            
+            /* Asegurar que el título "Navegación" tenga letras blancas */
+            div[data-testid="stSidebar"] h1 {
+                color: white !important;
+            }
+            
+            /* Reducir espacio entre botones del sidebar */
+            div[data-testid="stSidebar"] .stButton {
+                margin: 8px 0 !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button {
+                margin: 8px 0 !important;
+            }
+            
+            /* Reducir espacio entre elementos del sidebar */
+            div[data-testid="stSidebar"] .element-container {
+                margin: 8px 0 !important;
+            }
+            
+            /* Asegurar que no haya espacio extra entre elementos */
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div {
+                margin: 8px 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Control específico del espaciado entre botones */
+            div[data-testid="stSidebar"] .stButton + .stButton {
+                margin-top: 8px !important;
+            }
+            
+            /* Reducir espacio entre elementos del sidebar */
+            div[data-testid="stSidebar"] .element-container + .element-container {
+                margin-top: 8px !important;
+            }
+            
+            /* Asegurar que los botones tengan el espaciado correcto */
+            div[data-testid="stSidebar"] button {
+                margin: 8px 0 !important;
+            }
+            
+            /* Control del espaciado del título */
+            div[data-testid="stSidebar"] h1 {
+                margin-bottom: 16px !important;
+            }
+            
+            /* ESTILOS AGRESIVOS PARA FORZAR EL ESPACIADO CORRECTO */
+            div[data-testid="stSidebar"] .stButton {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button {
+                margin: 4px 0 !important;
+                padding: 12px 20px !important;
+            }
+            
+            div[data-testid="stSidebar"] .element-container {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Forzar espaciado específico entre botones */
+            div[data-testid="stSidebar"] .stButton:nth-child(2) {
+                margin-top: 4px !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton:nth-child(3) {
+                margin-top: 4px !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton:nth-child(4) {
+                margin-top: 4px !important;
+            }
+            
+            /* Reset completo de márgenes y padding */
+            div[data-testid="stSidebar"] * {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Aplicar espaciado solo a los botones */
+            div[data-testid="stSidebar"] .stButton > button {
+                margin: 4px 0 !important;
+                padding: 12px 20px !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Configurar el sidebar
+    with st.sidebar:
+        st.title("Navegación")
+        
+
+        
+        # Obtener páginas disponibles en la carpeta pages
+        pages_dir = "pages"
+        allowed_pages = ["Tu Super online"]  # Páginas permitidas sin incluir Inicio
+        
+        if os.path.exists(pages_dir):
+            for page_name in allowed_pages:  # Usar orden específico
+                file_path = f"{pages_dir}/{page_name}.py"
+                if os.path.exists(file_path):
+                    # Agregar iconos para hacer más visual
+                    icon = "🛒"
+                    if st.button(f"{icon} {page_name}", key=f"nav_{page_name}", use_container_width=True):
+                        st.switch_page(f"pages/{page_name}.py")
+        
+        # Agregar botón para Cerrar sesión al final
+        if st.button("🚪 Cerrar sesión", key="nav_cerrar_sesion", use_container_width=True):
+            # Limpiar la sesión
+            st.session_state.clear()
+            st.switch_page("Inicio.py")
+
+# EJECUTAR LA CONFIGURACIÓN DEL SIDEBAR
+configure_sidebar()
+
 # Inicializar cliente de Supabase
 supabase = get_supabase_client()
 
@@ -180,46 +427,14 @@ st.markdown("""
         padding: 0 !important;
     }
 
-    .block-container {
-        max-width: 700px !important;
-        padding-top: 1rem !important;
-        padding-bottom: 2rem !important;
-        margin: auto !important;
-        background-color: #D4DFF0 !important;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50 !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', sans-serif !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }
-
     h1, h2, h3, h4 {
         color: #2B3674 !important;
         font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Excepción: títulos del sidebar mantienen color blanco */
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4 {
+        color: white !important;
     }
 
     .stButton > button {
@@ -255,20 +470,6 @@ st.markdown("""
         width: 80%;
     }
 
-    /* Ocultar/cambiar color del header y toolbar */
-    header[data-testid="stHeader"] {
-        background-color: #D4DFF0 !important;
-        height: 0px !important;
-    }
-    
-    .stToolbar {
-        background-color: #D4DFF0 !important;
-    }
-    
-    [data-testid="stToolbar"] {
-        background-color: #D4DFF0 !important;
-    }
-    
     /* Remover cualquier cuadro blanco en la parte superior */
     .stApp > div:first-child,
     .stApp > header,
@@ -276,10 +477,6 @@ st.markdown("""
         background-color: #D4DFF0 !important;
     }
     
-    /* Si hay un elemento con clase específica que cause el cuadro blanco */
-    div[data-testid="stVerticalBlock"] > div:first-child {
-        background-color: #D4DFF0 !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 

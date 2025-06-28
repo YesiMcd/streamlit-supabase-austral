@@ -1,6 +1,151 @@
 import streamlit as st
 from PIL import Image
 import base64
+import os
+
+# Configuración de página
+st.set_page_config(
+    page_title="Tu Super Online",
+    layout="centered"
+)
+
+def configure_sidebar():
+    """Configura el sidebar para mostrar solo las páginas principales."""
+    
+    # Aplicar CSS para ocultar todas las páginas excepto las principales
+    st.markdown("""
+        <style>
+            /* Ocultar todas las páginas por defecto */
+            div[data-testid="stSidebarNav"] ul {
+                display: none !important;
+            }
+            
+            /* Mostrar solo las páginas permitidas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(2), /* Registro */
+            div[data-testid="stSidebarNav"] ul li:nth-child(3) { /* Tu Super online */
+            div[data-testid="stSidebarNav"] ul li:nth-child(1), /* Inicio */            
+                display: block !important;
+            }
+            
+            /* Ocultar específicamente las páginas no deseadas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(n+4) {
+                display: none !important;
+            }
+            
+            /* Estilo del sidebar - fondo completo */
+            div[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] .sidebar-content {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            /* Estilo del título de navegación - ELIMINADO - se maneja con div inline */
+            
+            /* Estilo de los botones del sidebar - IMPORTANTE: asegurar que sean visibles */
+            div[data-testid="stSidebar"] .stButton {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button {
+                background-color: #4b6783 !important;
+                color: white !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button:hover {
+                background-color: #3a5570 !important;
+                transform: translateX(5px) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            }
+            
+            /* Asegurar que el contenedor del sidebar sea visible */
+            div[data-testid="stSidebar"] .element-container {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            /* Estilo para los enlaces de navegación */
+            div[data-testid="stSidebarNav"] ul li a {
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                display: block !important;
+                text-decoration: none !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                transform: translateX(5px) !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a.active {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                font-weight: 700 !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Configurar el sidebar
+    with st.sidebar:
+        # Usar span con color blanco específico
+        st.markdown('<div style="font-size: 1.5rem; font-weight: 600; margin: 1.25rem 0px 1rem; font-family: Poppins; background-color: transparent !important;"><span style="color: white !important; background-color: transparent !important;">Navegación</span></div>', unsafe_allow_html=True)
+        
+
+        # Obtener páginas disponibles en la carpeta pages
+        pages_dir = "pages"
+        allowed_pages = []  # Sin páginas permitidas ya que el usuario está logueado
+        
+        if os.path.exists(pages_dir):
+            for page_name in allowed_pages:  # Usar orden específico
+                file_path = f"{pages_dir}/{page_name}.py"
+                if os.path.exists(file_path):
+                    # Agregar iconos para hacer más visual
+                    icon = "📝" if page_name == "Registro" else "🛒"
+                    if st.button(f"{icon} {page_name}", key=f"nav_{page_name}", use_container_width=True):
+                        st.switch_page(f"pages/{page_name}.py")
+        
+        # Agregar botón para Carrito
+        if st.button("🛒 Carrito", key="nav_carrito", use_container_width=True):
+            st.switch_page("pages/Buscador de productos.py")
+        
+        # Agregar botón para Mi perfil
+        if st.button("👤 Mi perfil", key="nav_mi_perfil", use_container_width=True):
+            st.switch_page("pages/Mi perfil.py")
+        
+        # Agregar botón para Cerrar sesión al final
+        if st.button("🚪 Cerrar sesión", key="nav_cerrar_sesion", use_container_width=True):
+            # Limpiar la sesión
+            st.session_state.clear()
+            st.switch_page("Inicio.py")
+
+# EJECUTAR LA CONFIGURACIÓN DEL SIDEBAR
+configure_sidebar()
 
 # Función para convertir imagen a base64
 def image_to_base64(image):
@@ -18,11 +163,6 @@ logo_b64 = image_to_base64(logo)
 fondo = Image.open("fondo del titulo.jpg")
 fondo_b64 = image_to_base64(fondo)
 
-# Configuración de página
-st.set_page_config(
-    page_title="Tu Super Online",
-    layout="centered"
-)
 
 # Estilos CSS
 st.markdown(f"""
@@ -36,34 +176,7 @@ st.markdown(f"""
     }}
 
     /* Sidebar styling */
-    [data-testid="stSidebar"] {{
-        background-color: #2C3E50 !important;
-    }}
-    [data-testid="stSidebar"] .sidebar-content {{
-        background-color: #2C3E50 !important;
-    }}
-    [data-testid="stSidebar"] * {{
-        color: white !important;
-        font-family: 'Poppins', sans-serif !important;
-    }}
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {{
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }}
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {{
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }}
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {{
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }}
+    /* Los estilos del sidebar se manejan en la función configure_sidebar() */
 
     header, footer, [data-testid="stToolbar"] {{
         display: none !important;
@@ -127,6 +240,8 @@ st.markdown(f"""
         text-shadow: 0px 2px 4px rgba(255, 255, 255, 0.6);
         line-height: 1.2;
     }}
+    
+    /* ELIMINAR TODAS LAS EXCEPCIONES DEL SIDEBAR - se maneja con div inline */
 
     .hero p {{
         font-size: 1.5rem;
@@ -310,3 +425,34 @@ with col2:
 st.markdown('<p class="info-highlight">¡Disfruta de la mejor experiencia de compra online!</p>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+# ESTILOS CSS GLOBALES PARA FORZAR EL COLOR BLANCO DEL TÍTULO
+st.markdown("""
+    <style>
+    /* ESTILOS NUCLEARES PARA EL SIDEBAR */
+    [data-testid="stSidebar"] div span {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] div div span {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] * span {
+        color: white !important;
+    }
+    
+    /* Forzar color blanco en cualquier elemento del sidebar */
+    [data-testid="stSidebar"] div[style*="font-size: 1.5rem"] span {
+        color: white !important;
+        background-color: transparent !important;
+    }
+    
+    /* Sobrescribir cualquier color heredado */
+    [data-testid="stSidebar"] span {
+        color: white !important;
+        color: white !important;
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)

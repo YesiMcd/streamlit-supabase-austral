@@ -26,7 +26,7 @@ def configure_sidebar():
             
             /* Estilo del sidebar */
             div[data-testid="stSidebar"] {
-                background-color: #2C3E50 !important;
+                background-color: #5b7d9e !important;
             }
             div[data-testid="stSidebar"] * {
                 color: white !important;
@@ -56,7 +56,6 @@ def configure_sidebar():
     # Obtener la lista de páginas permitidas
     allowed_pages = [
         "Inicio",
-        "Registro",
         "Tu Super online"
     ]
     
@@ -76,4 +75,14 @@ def configure_sidebar():
         # Mostrar solo las páginas permitidas
         for page in available_pages:
             if st.button(page, key=f"nav_{page}"):
-                st.switch_page(f"pages/{page}.py") 
+                st.switch_page(f"pages/{page}.py")
+        
+        # Agregar botón para Mi perfil
+        if st.button("👤 Mi perfil", key="nav_mi_perfil", use_container_width=True):
+            st.switch_page("pages/Mi perfil.py")
+        
+        # Agregar botón para Cerrar sesión al final
+        if st.button("🚪 Cerrar sesión", key="nav_cerrar_sesion", use_container_width=True):
+            # Limpiar la sesión
+            st.session_state.clear()
+            st.switch_page("Inicio.py") 

@@ -2,6 +2,7 @@ import streamlit as st
 from conexion import get_supabase_client
 from datetime import datetime
 import time
+import os
 
 # Configuración de la página
 st.set_page_config(
@@ -160,39 +161,146 @@ def guardar_carrito():
 if guardar_carrito():
     st.success("¡Tu pedido se ha guardado correctamente!")
 
-# Sidebar styling
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #2C3E50;
-    }
-    [data-testid="stSidebar"] .sidebar-content {
-        background-color: #2C3E50;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
-        text-decoration: none !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px) !important;
-    }
-    [data-testid="stSidebar"] .sidebar-content .sidebar-nav a.active {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        font-weight: 700 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+def configure_sidebar():
+    """Configura el sidebar para mostrar solo las páginas principales."""
+    
+    # Aplicar CSS para ocultar todas las páginas excepto las principales
+    st.markdown("""
+        <style>
+            /* Ocultar todas las páginas por defecto */
+            div[data-testid="stSidebarNav"] ul {
+                display: none !important;
+            }
+            
+            /* Mostrar solo las páginas permitidas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(1), /* Inicio */
+            div[data-testid="stSidebarNav"] ul li:nth-child(2), /* Registro */
+            div[data-testid="stSidebarNav"] ul li:nth-child(3) { /* Tu Super online */
+                display: block !important;
+            }
+            
+            /* Ocultar específicamente las páginas no deseadas */
+            div[data-testid="stSidebarNav"] ul li:nth-child(n+4) {
+                display: none !important;
+            }
+            
+            /* Estilo del sidebar - fondo completo */
+            div[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            div[data-testid="stSidebar"] .sidebar-content {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] {
+                background-color: #5b7d9e !important;
+            }
+            
+            section[data-testid="stSidebar"] > div {
+                background-color: #5b7d9e !important;
+            }
+            
+            /* Estilo del título de navegación - posicionado más arriba */
+            div[data-testid="stSidebar"] h1 {
+                margin-top: -10px !important;
+                padding-top: 15px !important;
+                color: white !important;
+                font-family: 'Poppins', sans-serif !important;
+            }
+            
+            div[data-testid="stSidebar"] * {
+                color: white !important;
+                font-family: 'Poppins', sans-serif !important;
+            }
+            
+            /* Estilo de los botones del sidebar - IMPORTANTE: asegurar que sean visibles */
+            div[data-testid="stSidebar"] .stButton {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button {
+                background-color: #4b6783 !important;
+                color: white !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            div[data-testid="stSidebar"] .stButton > button:hover {
+                background-color: #3a5570 !important;
+                transform: translateX(5px) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            }
+            
+            /* Asegurar que el contenedor del sidebar sea visible */
+            div[data-testid="stSidebar"] .element-container {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            /* Estilo para los enlaces de navegación */
+            div[data-testid="stSidebarNav"] ul li a {
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+                margin: 8px 0 !important;
+                border-radius: 10px !important;
+                transition: all 0.3s ease !important;
+                display: block !important;
+                text-decoration: none !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                transform: translateX(5px) !important;
+            }
+            div[data-testid="stSidebarNav"] ul li a.active {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                font-weight: 700 !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Configurar el sidebar
+    with st.sidebar:
+        st.title("Navegación")
+        
+
+        
+        # Obtener páginas disponibles en la carpeta pages
+        pages_dir = "pages"
+        allowed_pages = ["Tu Super online"]  # Páginas permitidas sin incluir Inicio
+        
+        if os.path.exists(pages_dir):
+            for page_name in allowed_pages:  # Usar orden específico
+                file_path = f"{pages_dir}/{page_name}.py"
+                if os.path.exists(file_path):
+                    # Agregar iconos para hacer más visual
+                    icon = "🛒"
+                    if st.button(f"{icon} {page_name}", key=f"nav_{page_name}", use_container_width=True):
+                        st.switch_page(f"pages/{page_name}.py")
+        
+        # Agregar botón para Cerrar sesión al final
+        if st.button("🚪 Cerrar sesión", key="nav_cerrar_sesion", use_container_width=True):
+            # Limpiar la sesión
+            st.session_state.clear()
+            st.switch_page("Inicio.py")
+
+# EJECUTAR LA CONFIGURACIÓN DEL SIDEBAR
+configure_sidebar()
 
 # Estilo personalizado
 st.markdown("""
@@ -224,17 +332,7 @@ st.markdown("""
         background: #D4DFF0 !important;
     }
     
-    [data-testid="stToolbar"] {
-        background: #D4DFF0 !important;
-    }
-    
-    .main > div {
-        background: #D4DFF0 !important;
-    }
-    
-    .element-container {
-        background: #D4DFF0 !important;
-    }
+
     
     .stMarkdown {
         background: #D4DFF0 !important;
@@ -335,16 +433,7 @@ st.markdown("""
         }
     }
 
-    /* Fondo decorativo */
-    .background-decoration {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #D4DFF0;
-        z-index: -1;
-    }
+
 
     .background-circles {
         position: fixed;
@@ -402,6 +491,47 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# ESTILOS CSS GLOBALES PARA FORZAR EL COLOR BLANCO DEL TÍTULO
+st.markdown("""
+    <style>
+    /* ESTILOS NUCLEARES PARA EL SIDEBAR */
+    [data-testid="stSidebar"] div span {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] div div span {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] * span {
+        color: white !important;
+    }
+    
+    /* Forzar color blanco en cualquier elemento del sidebar */
+    [data-testid="stSidebar"] div[style*="font-size: 1.5rem"] span {
+        color: white !important;
+        background-color: transparent !important;
+    }
+    
+    /* Sobrescribir cualquier color heredado */
+    [data-testid="stSidebar"] span {
+        color: white !important;
+        color: white !important;
+        color: white !important;
+    }
+    
+    /* Forzar color blanco en el título h1 del sidebar */
+    [data-testid="stSidebar"] h1 {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] .st-emotion-cache-n14c82 h1 {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Botón para volver al inicio
-if st.button("Volver al Inicio", use_container_width=True):
+if st.button("Volver a Tu Super Online", use_container_width=True):
     st.switch_page("pages/Tu Super online.py")
+
