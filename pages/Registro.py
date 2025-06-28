@@ -133,7 +133,7 @@ def configure_sidebar():
         
         # Obtener páginas disponibles en la carpeta pages
         pages_dir = "pages"
-        allowed_pages = ["Tu Super online"]  # Páginas permitidas sin incluir Inicio
+        allowed_pages = []  # Sin páginas permitidas ya que es la página de registro
         
         if os.path.exists(pages_dir):
             for page_name in allowed_pages:  # Usar orden específico

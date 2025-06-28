@@ -129,6 +129,11 @@ def configure_sidebar():
                 background-color: rgba(255, 255, 255, 0.2) !important;
                 font-weight: 700 !important;
             }
+                <style>
+            /* Oculta los tooltips blancos tipo "key=..." */
+            [title^="key="] {
+             display: none !important;
+            }
         </style>
     """, unsafe_allow_html=True)
     
