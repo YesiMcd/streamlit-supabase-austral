@@ -804,26 +804,35 @@ if datos_usuario:
                 if email != st.session_state["user_email"]:
                     st.session_state["user_email"] = email
                 st.rerun()
-    
     with tab2:
         st.markdown("### 📊 Tus Productos Más Frecuentes")
-        productos_frecuentes = obtener_productos_frecuentes(datos_usuario['id_cliente'])
         
+        # Agregar información adicional antes del gráfico
+        st.info("📈 Aquí puedes ver los productos que más compras. Esta información se basa en tus carritos comprados.")
+        
+        productos_frecuentes = obtener_productos_frecuentes(datos_usuario['id_cliente'])
+    
         if productos_frecuentes:
+            
             # Crear DataFrame para el gráfico
             df = pd.DataFrame(productos_frecuentes, columns=['Producto', 'Cantidad'])
             
-            # Crear gráfico de torta con colores más llamativos
-            fig = px.pie(df, values='Cantidad', names='Producto', 
-                        title='Productos Más Comprados',
-                        color_discrete_sequence=['#FF6B6B', '#4ECDC4', '#45B7D1'])
-            
+            # Calcular el valor máximo para establecer el rango del eje Y
+            max_cantidad = df['Cantidad'].max()
+            y_range_max = max_cantidad + (max_cantidad * 0.3)  # 30% más que el máximo
+        
+            # Crear gráfico de barras con colores más llamativos
+            fig = px.bar(df, x='Producto', y='Cantidad', 
+                    title='Productos Más Comprados',
+                    color='Cantidad',
+                    color_continuous_scale=['#e8881a', '#e81ad8', '#45B7D1'])
+        
             # Personalizar el gráfico
             fig.update_traces(
-                textposition='inside',
-                textinfo='label',
+                texttemplate='%{y}',
+                textposition='outside',
                 textfont_size=14,
-                textfont_color='white',
+                textfont_color='#2B3674',
                 marker=dict(line=dict(color='white', width=2))
             )
             fig.update_layout(
@@ -831,10 +840,26 @@ if datos_usuario:
                 title_font_size=20,
                 title_font_color='#2B3674',
                 paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)'
+                plot_bgcolor='rgba(0,0,0,0)',
+                xaxis=dict(
+                    title=dict(
+                        text='Productos',
+                        font=dict(size=16, color='#2B3674')
+                    ),
+                    tickfont=dict(color='#2B3674')
+                ),
+                yaxis=dict(
+                    title=dict(
+                        text='Cantidad',
+                        font=dict(size=16, color='#2B3674')
+                    ),
+                    tickfont=dict(color='#2B3674'),
+                    range=[0, y_range_max]  # Establecer rango personalizado del eje Y
+                )
             )
-            
-            # Mostrar el gráfico
+        
+        # Mostrar el gráfico con margen superior
+            st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Aún no tienes productos frecuentes. ¡Comienza a comprar!")
